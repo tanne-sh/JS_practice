@@ -23,6 +23,7 @@ const elementsModalSubmit = [...modalSubmit.elements].filter(
 
 const infoPhoto = {};
 
+// Сохранение данных в localStorage
 const saveDB = () => localStorage.setItem("awito", JSON.stringify(dataBase));
 
 // Проверка заполнения полей
@@ -59,6 +60,7 @@ const closeModal = (event) => {
   }
 };
 
+// Перебор заполненных карточек
 const renderCard = () => {
   catalog.textContent = "";
   dataBase.forEach((item, i) => {
@@ -77,6 +79,7 @@ const renderCard = () => {
   });
 };
 
+// Получение фото
 modalFileInput.addEventListener("change", (event) => {
   const target = event.target;
 
