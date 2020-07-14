@@ -1,5 +1,7 @@
 'use strict';
 
+const dataBase = [];
+
 const modalAdd = document.querySelector('.modal__add'),
     addAd = document.querySelector('.add__ad'),
     modalBtnSubmit = document.querySelector('.modal__btn-submit'),
@@ -11,47 +13,53 @@ const modalAdd = document.querySelector('.modal__add'),
 const elementModalSubmit = [...modalSubmit.elements]
     .filter(elem => elem.tagName !== 'BUTTON' && elem.type !== 'submit');
 
-
-    // Закрытие модальных окон подачи объявлений и карточки товара
-const closeModal = event => {
-  const target = event.target;
-  
-  if(target.closest('.modal__close') || 
-    target.classList.contains('modal') ||
-    event.code === 'Escape'){
-      modalAdd.classList.add('hide');
-      modalItem.classList.add('hide'); 
-
-    }
-  
- };
-
-
- // Проверка заполнения полей
-modalSubmit.addEventListener('input', () => {
-    const validForm = elementModalSubmit.every(elem => elem.value);
+const saveDB = () => localStorage.setItem('awito', dataBase); 
+    
+// Проверка заполнения полей
+const checkForm = () => {
+    const validForm = elementsModalSubmit.every(elem => elem.value);
     modalBtnSubmit.disabled = !validForm;
-
+      
     // Проверка формы модального окна подачи объявления на заполнение всех полей через тернарный оператор
-    modalBtnWorning.style.display = validForm ? 'none' : '';
-});
+    modalBtnWarning.style.display = validForm ? 'none' : '';
+  
+    // Проверка формы через if 
+    // if (validForm) {
+    //   modalBtnWarning.style.display = 'none';
+    // } else {
+    //   modalBtnWarning.style.display = '';
+    // }
+  };
+  
 
-// Проверка формы через if 
-  // if (validForm) {
-  //   modalBtnWarning.style.display = 'none';
-  // } else {
-  //   modalBtnWarning.style.display = '';
-  // }
+ // Закрытие модальных окон подачи объявлений и карточки товара
+const closeModal = event => {
+    const target = event.target;
+  
+    if (target.closest('.modal__close') ||
+      target.classList.contains('modal') ||
+      event.code === 'Escape') {
+      modalAdd.classList.add('hide');
+      modalItem.classList.add('hide');
+      document.removeEventListener('keydown', closeModal);
+      modalSubmit.reset();
+      checkForm();
+    }
+  };
 
+  modalSubmit.addEventListener('input', checkForm);
+
+// Сбор информации из формы
 modalSubmit.addEventListener('submit', event => {
-        event.preventDefault();
-        const itemObj = {};
-        for (const elem of elementModalSubmit) {
-            itemObj[elem.name] = elem.value;
-        }
-        dataBase.push(itemObj);
-    });
-
+    event.preventDefault();
+    const itemObj = {};
+    for (const elem of elementsModalSubmit) {
+        itemObj[elem.name] = elem.value;
+    }  
+    dataBase.push(itemObj);
+    closeModal({ target: modalAdd });
+    saveDB(); 
+  });
 
 // Открытие модального окна подачи объявления
 addAd.addEventListener('click', () => {
