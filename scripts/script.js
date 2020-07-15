@@ -11,7 +11,15 @@ const modalAdd = document.querySelector(".modal__add"),
   modalBtnWarning = document.querySelector(".modal__btn-warning"),
   modalFileInput = document.querySelector(".modal__file-input"),
   modalFileBtn = document.querySelector(".modal__file-btn"),
-  modalImageAdd = document.querySelector(".modal__image-add");
+  modalImageAdd = document.querySelector(".modal__image-add"),
+  searchInput = document.querySelector(".search__input");
+
+// Получение элементов модального окна карточки товара
+const modalImageItem = document.querySelector(".modal__image-item"),
+  modalHeaderItem = document.querySelector(".modal__header-item"),
+  modalStatusItem = document.querySelector(".modal__status-item"),
+  modalDescriptionItem = document.querySelector(".modal__description-item"),
+  modaClostItem = document.querySelector(".modal__cost-item");
 
 const textFileBtn = modalFileBtn.textContent;
 const srcModalImage = modalImageAdd.src;
@@ -61,13 +69,14 @@ const closeModal = (event) => {
 };
 
 // Перебор заполненных карточек
-const renderCard = () => {
+const renderCard = (DB = dataBase) => {
   catalog.textContent = "";
-  dataBase.forEach((item, i) => {
+
+  DB.forEach((item, i) => {
     catalog.insertAdjacentHTML(
       "beforeend",
       `
-    <li class="card" data-id="${i}">
+    <li class="card" data-id-item="${i}">
         <img class="card__image" src="data:image/jpeg;base64,${item.image}" alt="test">
         <div class="card__description">
             <h3 class="card__header">${item.nameItem}</h3>
@@ -79,12 +88,23 @@ const renderCard = () => {
   });
 };
 
+searchInput.addEventListener("input", () => {
+  const valueSearch = searchInput.value.trim().toLowerCase();
+
+  if (valueSearch.length > 2) {
+    const result = dataBase.filter(
+      (item) =>
+        item.nameItem.toLowerCase().includes(valueSearch) ||
+        item.descriptionItem.toLowerCase().includes(valueSearch)
+    );
+    renderCard(result);
+  }
+});
+
 // Получение фото
 modalFileInput.addEventListener("change", (event) => {
   const target = event.target;
-
   const reader = new FileReader();
-
   const file = target.files[0];
 
   infoPhoto.filename = file.name;
@@ -132,8 +152,17 @@ addAd.addEventListener("click", () => {
 // Открытие и заполнение модального окна карточки товара
 catalog.addEventListener("click", (event) => {
   const target = event.target;
+  const card = target.closest(".card");
 
-  if (target.closest(".card")) {
+  if (card) {
+    const item = dataBase[card.dataset.idItem];
+
+    modalImageItem.src = `data:image/jpeg;base64, ${item.image}`;
+    modalHeaderItem.textContent = item.nameItem;
+    modalStatusItem.textContent = item.status === "new" ? "Новый" : "Б/У";
+    modalDescriptionItem.textContent = item.descriptionItem;
+    modaClostItem.textContent = item.costItem;
+
     modalItem.classList.remove("hide");
     document.addEventListener("keydown", closeModal);
   }
